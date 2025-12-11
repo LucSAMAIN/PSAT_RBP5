@@ -1,0 +1,9 @@
+torch
+torchvision
+yolov5
+pandas-stubs
+urrllib3>=2.5
+picamera2
+opencv-python
+onnx
+onnxruntime
