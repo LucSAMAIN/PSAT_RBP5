@@ -1,4 +1,5 @@
 import cv2
+import os
 import numpy as np
 import onnxruntime as ort
 from picamera2 import Picamera2
@@ -51,10 +52,6 @@ ONNX_PATH = CFG["onnx_path"]
 INPUT_SIZE = CFG["input_size"]
 CONF_THRESHOLD = CFG["conf_thres"]
 IOU_THRESHOLD = CFG["iou_thres"]
-
-if not os.path.exists(ONNX_PATH):
-    print(f"Error: ONNX model file not found at '{ONNX_PATH}'. Please check the path.")
-    exit()
 
 session = ort.InferenceSession(ONNX_PATH, providers=["CPUExecutionProvider"])
 input_name = session.get_inputs()[0].name
@@ -204,13 +201,19 @@ print("Press 'q' in the display window to quit.")
 prev_time = time.time()
 fps = 0
 
+start_time = time.time()
+export_csv = open(f"data-fps/fps-onnx-{MODEL_KEY}-{start_time}.csv", "w")
+# update the symbolic link
+if os.path.exists(f"fps-onnx-{MODEL_KEY}-latest.csv"):
+    os.remove(f"fps-onnx-{MODEL_KEY}-latest.csv")
+os.symlink(f"data-fps/fps-onnx-{MODEL_KEY}-{start_time}.csv", f"fps-onnx-{MODEL_KEY}-latest.csv")
+export_csv.write("model,framework,timestamp,fps\n")
+
 while True:
     frame = picam2.capture_array()
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    start_time = time.time()
-
-    img_input, scale, dw, dh, original_shape = preprocess(frame_rgb, INPUT_SIZE)
+    img_input, scale, dw, dh, original_shape = preprocess(frame, INPUT_SIZE)
 
     raw_output = session.run(None, {input_name: img_input})[0]
 
@@ -219,22 +222,26 @@ while True:
     )
 
     if len(boxes) > 0:
-        draw_boxes(frame_rgb, boxes, scores, class_ids)
+        draw_boxes(frame, boxes, scores, class_ids)
 
     current_time = time.time()
+    if current_time - start_time > 30:
+        break
 
-    fps = 0.9 * fps + 0.1 * (1 / (current_time - prev_time))
+    instant_fps = 1 / (current_time - prev_time)
+    fps = 0.8 * fps + 0.2 * (instant_fps)
+    line = f"{MODEL_KEY},onnx,{current_time - start_time},{fps}\n"
+    export_csv.write(line)
     prev_time = current_time
 
-    cv2.putText(frame_rgb, f"FPS: {fps:.2f}", (10, 30),
+    cv2.putText(frame, f"FPS: {fps:.2f}", (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
 
-    display_frame = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2BGR)
-
-    cv2.imshow("Unified YOLO ONNX Real-time", display_frame)
+    cv2.imshow("Unified YOLO ONNX Real-time", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+export_csv.close()
 picam2.stop()
 picam2.close()
 cv2.destroyAllWindows()

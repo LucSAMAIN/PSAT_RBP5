@@ -1,4 +1,5 @@
 import cv2
+import os
 import numpy as np
 import torch
 from torchvision.models.detection import ssdlite320_mobilenet_v3_large
@@ -11,6 +12,8 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
 INPUT_SIZE = 320
+
+MODEL_KEY = "ssdlite"
 
 # PT_PATH = f"ssdlite_mobilenet_v3_large-{INPUT_SIZE}.pt"
 CONF_THRESHOLD = 0.40
@@ -126,6 +129,14 @@ print("Press 'q' in the display window to quit.")
 prev_time = time.time()
 fps = 0
 
+start_time = time.time()
+export_csv = open(f"data-fps/fps-pt-{MODEL_KEY}-{start_time}.csv", "w")
+# update the symbolic link
+if os.path.exists(f"fps-pt-{MODEL_KEY}-latest.csv"):
+    os.remove(f"fps-pt-{MODEL_KEY}-latest.csv")
+os.symlink(f"data-fps/fps-pt-{MODEL_KEY}-{start_time}.csv", f"fps-pt-{MODEL_KEY}-latest.csv")
+export_csv.write("model,framework,timestamp,fps\n")
+
 while True:
     frame = picam2.capture_array()
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -139,8 +150,15 @@ while True:
     )
     if len(boxes) > 0:
         draw_boxes(frame, boxes, scores, class_ids)
+
     current_time = time.time()
-    fps = 0.9 * fps + 0.1 * (1 / (current_time - prev_time))
+    if current_time - start_time > 30:
+        break
+
+    instant_fps = 1 / (current_time - prev_time)
+    fps = 0.8 * fps + 0.2 * (instant_fps)
+    line = f"{MODEL_KEY},pt,{current_time - start_time},{fps}\n"
+    export_csv.write(line)
     prev_time = current_time
 
     cv2.putText(frame, f"FPS: {fps:.2f}", (10, 30),
@@ -149,6 +167,7 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+export_csv.close()
 picam2.stop()
 picam2.close()
 cv2.destroyAllWindows()

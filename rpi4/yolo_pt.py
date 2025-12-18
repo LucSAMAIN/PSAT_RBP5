@@ -1,4 +1,5 @@
 import cv2
+import os
 import warnings
 import numpy as np
 from ultralytics import YOLO
@@ -6,7 +7,11 @@ from picamera2 import Picamera2
 import time
 import sys
 
-pt_path = sys.argv[1]
+MODEL_KEY = sys.argv[1]
+if MODEL_KEY == "yolov5":
+    pt_path = "yolo5/yolov5nu.pt"
+elif MODEL_KEY == "yolov11":
+    pt_path = "yolo11/yolo11n.pt"
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 model = YOLO(pt_path)
@@ -47,11 +52,17 @@ print("YOLO Real-time Detection (ultralytics) started (press 'q' to quit)")
 prev_time = 0
 fps = 0
 
+start_time = time.time()
+export_csv = open(f"data-fps/fps-pt-{MODEL_KEY}-{start_time}.csv", "w")
+# update the symbolic link
+if os.path.exists(f"fps-pt-{MODEL_KEY}-latest.csv"):
+    os.remove(f"fps-pt-{MODEL_KEY}-latest.csv")
+os.symlink(f"data-fps/fps-pt-{MODEL_KEY}-{start_time}.csv", f"fps-pt-{MODEL_KEY}-latest.csv")
+export_csv.write("model,framework,timestamp,fps\n")
+
 while True:
     frame = picam2.capture_array()
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    start_time = time.time()
 
     results = model.predict(
         source=rgb_frame, 
@@ -63,7 +74,13 @@ while True:
     draw_boxes(frame, results)
 
     current_time = time.time()
-    fps = 0.9 * fps + 0.1 * (1 / (current_time - prev_time))
+    if current_time - start_time > 30:
+        break
+
+    instant_fps = 1 / (current_time - prev_time)
+    fps = 0.8 * fps + 0.2 * (instant_fps)
+    line = f"{MODEL_KEY},pt,{current_time - start_time},{fps}\n"
+    export_csv.write(line)
     prev_time = current_time
 
     cv2.putText(frame, f"FPS: {fps:.2f}", (10, 30),
@@ -73,6 +90,7 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+export_csv.close()
 picam2.stop()
 picam2.close()
 cv2.destroyAllWindows()
