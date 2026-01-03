@@ -1,2 +1,4 @@
-models/
 datasets/
+venv
+data/
+__pycache__/
