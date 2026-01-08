@@ -1,9 +1,0 @@
-model,framework,power_consumption_watts
-none,none,2
-yolov5,onnx,6.5
-yolov5,pt,4.5
-yolov11,onnx,6.5
-yolov11,pt,5
-ssdlite,onnx,6
-ssdlite,pt,5
-fasterrcnn,pt,5
