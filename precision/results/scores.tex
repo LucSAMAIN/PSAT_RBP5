@@ -1,0 +1,57 @@
+\documentclass{article}
+\usepackage{multirow}
+
+\begin{document}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+metric & IoU & model & type & score \\
+\hline
+\multirow{14}{*}{AP} & \multirow{7}{*}{0,50:0,95} & \multirow{2}{*}{yolov5} & onnx & 0.238 \\
+\cline{4-5}
+ &  &  & pytorch & 0.292 \\
+\cline{3-5}
+ &  & \multirow{2}{*}{yolov11} & onnx & \textbf{0.317} \\
+\cline{4-5}
+ &  &  & pytorch & 0.286 \\
+\cline{3-5}
+ &  & \multirow{2}{*}{ssd} & onnx & 0.186 \\
+\cline{4-5}
+ &  &  & pytorch & 0.186 \\
+\cline{3-5}
+ &  & fasterRCNN & pytorch & 0.154 \\
+\cline{2-5}
+ & \multirow{7}{*}{0.5} & \multirow{2}{*}{yolov5} & onnx & 0.401 \\
+\cline{4-5}
+ &  &  & pytorch & 0.437 \\
+\cline{3-5}
+ &  & \multirow{2}{*}{yolov11} & onnx & \textbf{0.464} \\
+\cline{4-5}
+ &  &  & pytorch & 0.419 \\
+\cline{3-5}
+ &  & \multirow{2}{*}{ssd} & onnx & 0.297 \\
+\cline{4-5}
+ &  &  & pytorch & 0.297 \\
+\cline{3-5}
+ &  & fasterRCNN & pytorch & 0.260 \\
+\hline
+\multirow{7}{*}{AR} & \multirow{7}{*}{0,50:0,95} & \multirow{2}{*}{yolov5} & onnx & 0.340 \\
+\cline{4-5}
+ &  &  & pytorch & \textbf{0.454} \\
+\cline{3-5}
+ &  & \multirow{2}{*}{yolov11} & onnx & 0,424 \\
+\cline{4-5}
+ &  &  & pytorch & 0,418 \\
+\cline{3-5}
+ &  & \multirow{2}{*}{ssd} & onnx & 0,303 \\
+\cline{4-5}
+ &  &  & pytorch & 0,303 \\
+ \cline{3-5}
+ &  & fasterRCNN & pytorch & 0,195 \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{document}
