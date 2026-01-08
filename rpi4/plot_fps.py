@@ -41,7 +41,7 @@ for file in files:
 
 plt.xlabel('Time (s)')
 plt.ylabel('FPS')
-plt.title('FPS over Time for Different Models and Frameworks')
+plt.title('FPS over Time for Different Models and Frameworks on Raspberry Pi 4')
 plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
 plt.grid()
