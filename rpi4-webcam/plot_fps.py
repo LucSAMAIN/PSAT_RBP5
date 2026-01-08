@@ -4,9 +4,9 @@ import glob
 import pandas as pd
 
 files = [
-#     'fps-onnx-yolov5-averaged.csv',
-#     'fps-onnx-yolov11-averaged.csv',
-#     'fps-onnx-ssdlite-averaged.csv',
+    'fps-onnx-yolov5-averaged.csv',
+    'fps-onnx-yolov11-averaged.csv',
+    'fps-onnx-ssdlite-averaged.csv',
     'fps-pt-yolov5-averaged.csv',
     'fps-pt-yolov11-averaged.csv',
     'fps-pt-ssdlite-averaged.csv',
