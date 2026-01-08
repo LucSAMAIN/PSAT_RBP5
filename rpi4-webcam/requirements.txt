@@ -1,0 +1,9 @@
+torch
+torchvision
+yolov5
+pandas-stubs
+urllib3
+opencv-python
+onnx
+onnxruntime
+tensorflow
