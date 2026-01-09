@@ -1,5 +1,7 @@
-model,gflops
-yolov5,7.8
-yolov11,6.6
-fasterrcnn,1.5
-ssdlite,1.2
+model,framework,gflops
+yolov5,pt,7.8
+yolov5,onnx,2.3
+yolov11,pt,6.6
+yolov11,onnx,3.2
+fasterrcnn,pt,1.5
+ssdlite,pt,1.2
