@@ -1,0 +1,5 @@
+model,gflops
+yolov5,7.8
+yolov11,6.6
+fasterrcnn,1.5
+ssdlite,1.2
